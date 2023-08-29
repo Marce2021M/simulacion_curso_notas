@@ -33,12 +33,18 @@ g2 <- tibble(u = runif(1000),
 
 g1 + g2
 
+#----------------------------------------------------------------------------------
+
+# CLASE 29/08/2023
+
 set.seed(108)
 U <- runif(3 * 10^4)      # Genera uniformes
 U <- matrix(U, nrow = 3)  # Transforma a matriz
 X <- -log(U)              # Transforma a exponenciales
 X <- 2 * apply(X, 2, sum) # Suma los tres renglones
 summary(X)
+
+hist(X)
 
 set.seed(108)
 runif(3 * 10^4) |>        # Genera uniformes 
@@ -47,7 +53,7 @@ runif(3 * 10^4) |>        # Genera uniformes
   apply(2, function(x){-2 * sum(x)} ) |> 
   summary()
 
-library(distributions)
+library(distributions) 
 ## Definimos nuestra variable aleatoria
 x <- UniformRandomVariable$new()
 
