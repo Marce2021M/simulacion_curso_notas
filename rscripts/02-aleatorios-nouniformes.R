@@ -148,6 +148,10 @@ ggplot(aes(x)) +
                  binwidth = 1, color = "white") +
   sin_lineas
 
+#----------------------------------------------------------------------
+
+## CLASE 5/09/2023
+
 nsamples <- 10^5
 y <- sample(1:3, size = nsamples, prob = c(.1, .7, .2), replace = TRUE)
 x <- rnorm(nsamples,
@@ -175,6 +179,8 @@ rpseudo.uniform <- function(nsamples, seed = 108727){
   x/m
 }
 
+# Ejemplo de clase donde nsample=30
+
 nsamples <- 30;  nbins <- 10;
 samples <- data.frame(x = rpseudo.uniform(nsamples, seed = 166136))
 samples |>
@@ -185,7 +191,25 @@ ggplot(aes(x)) +
            ymax = qbinom(.05, nsamples, 1/nbins),
            xmin = -Inf, xmax = Inf,
            alpha = .4, fill = "gray") + 
-  geom_histogram(bins = nbins, color = "white") + sin_lineas +
+  #geom_histogram(bins = nbins, color = "white") + sin_lineas + # gráfica fea porque no sabemos cuántos bins y tenemos problemas con boundary
+  geom_histogram(binwidth = 1/nbins, color = "white", boundary=1) + sin_lineas +
+  ggtitle("Semilla: 166136")
+
+
+# Ejemplo de clase donde nsample=100000
+
+nsamples <- 100000;  nbins <- 100;
+samples <- data.frame(x = rpseudo.uniform(nsamples, seed = 166136))
+samples |>
+ggplot(aes(x)) +
+  geom_hline(yintercept = nsamples/nbins, color = "darkgray", lty = 2) +
+  annotate("rect",
+           ymin = qbinom(.95, nsamples, 1/nbins),
+           ymax = qbinom(.05, nsamples, 1/nbins),
+           xmin = -Inf, xmax = Inf,
+           alpha = .4, fill = "gray") + 
+  #geom_histogram(bins = nbins, color = "white") + sin_lineas + # gráfica fea porque no sabemos cuántos bins y tenemos problemas con boundary
+  geom_histogram(binwidth = 1/nbins, color = "white", boundary=1) + sin_lineas +
   ggtitle("Semilla: 166136")
 
 ## Esto es para poner a prueba un pseudo generador =============================
@@ -198,7 +222,7 @@ rpseudo.uniform <- function(nsamples, seed = 108727){
   x/m
 }
 
-nsamples <- 30; nbreaks <- 10
+nsamples <- 10000; nbreaks <- 10
 samples <- data.frame(x = rpseudo.uniform(nsamples))
 
 Fn <- hist(samples$x, breaks = nbreaks, plot = FALSE)$counts/nsamples
@@ -207,8 +231,7 @@ F0 <- 1/nbreaks
 X2.obs <- (nsamples*nbreaks)*sum((Fn - F0)**2)
 
 ## Esto es para generar datos observados de la distribucion que queremos 
-experiment <- function(nsamples){
-  nbreaks <- 10
+experiment <- function(nsamples, nbreaks = 10){
   samples <- data.frame(x = runif(nsamples))
   Fn <- hist(samples$x, breaks = nbreaks, plot = FALSE)$counts/nsamples
   F0 <- 1/nbreaks
@@ -217,7 +240,7 @@ experiment <- function(nsamples){
 }
 
 X2 <- c()
-for (jj in 1:5000){
+for (jj in 1:10000){
   X2[jj] <- experiment(nsamples)
 }
 
