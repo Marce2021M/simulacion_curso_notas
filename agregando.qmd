@@ -1,0 +1,140 @@
+---
+title: "Integración Montecarlo"
+author: "Tarea, Simulación"
+format:
+  html:
+    page-layout: full
+    embed-resources: true
+    css: .style/style.css
+  pdf:
+    page-layout: full
+    embed-resources: true
+    include-in-header:
+      - file: .style/preamble.tex
+---
+
+
+# Instrucciones:
+
+Resuelve los siguientes ejercicios. Una entrega exitosa será la que pueda
+compilar y generar un pdf sin problemas.
+
+```{r knit, eval = FALSE, include = FALSE}
+# Este bloque es sólo para que puedas verificar que tu codigo compila bien. 
+# Corre esta línea y después busca en tu directorio el pdf.
+rmarkdown::render("assignment.Rmd", 
+                  output_file = "assignment.pdf", 
+                  clean = TRUE)
+```
+
+```{r setup, message=FALSE, echo=FALSE}
+  # renv::restore()
+  library(tidyverse)
+  library(LearnBayes)
+  library(scales)
+  library(patchwork)
+```
+
+1. _El vendedor ambulante en continuo_. Considera el objetivo de generar muestras aleatorias de una $\mathsf{N}(3,2)$. Considera propuestas del estilo
+$$
+\theta_\star | \theta_t \sim \mathsf{Uniforme}( \theta_t - \omega, \theta_t + \omega)\,.
+$$
+Realiza la generación de variables aleatorias por medio de una cadena de Markov utilizando Metropolis-Hastings considerando
+$\omega = 0.01$, $\omega = 1$ y $\omega=100$. Reporta tasas de aceptación y el promedio. Utiliza cadenas de tamaño 10,000. 
+
+
+```{r}
+  logobj <- function(theta){
+    dnorm(theta, mean = 3, sd = 2, log = TRUE)
+  }
+```
+
+
+```{r}
+xstart <- 3; 
+nsamples <- 1e3; 
+tau <- 10; # tamaño de paso
+
+mcmc <- LearnBayes::rwmetrop(
+logobj, 
+list(var = 1, scale = tau), 
+xstart, 
+nsamples
+)
+
+# para checar qué contiene mcmc
+# str(mcmc)
+
+
+```
+
+```{r}
+  plot(mcmc$par, type = "l")
+```
+
+```{r}
+  c(alpha = mcmc$accept)
+```
+
+```{r}
+acf(mcmc$par)
+```
+
+```{r}
+library(posterior)
+tibble(rhat = posterior::rhat(mcmc$par))
+```
+
+```{r}
+tibble(ess = posterior::ess_bulk(mcmc$par))
+```
+
+```{r}
+tibble(error_mc = posterior::mcse_mean(mcmc$par))
+```
+
+```{r}
+tibble(error_mc = posterior::mcse_mean(mcmc$par))
+```
+
+
+2. _Variables aleatorias truncadas_ Utiliza el método de Metropolis-Hastings
+para generar números aleatorios de una variable aleatoria Normal truncada con
+función de densidad objetivo 
+$$ \pi(x) \propto \exp\left( -\frac{(x - 3)^2}{32} \right) \mathbb{I}\{1 \leq x \leq 8\}\,,$$
+donde $\mathbb{I}$ denota la función indicadora. Considera propuestas para una
+caminata aleatoria $\mathsf{N}(x_t , 1)$ y empieza tu cadena en $x_0 =3$.
+Reporta tasas de aceptación y el promedio. Utiliza cadenas de tamaño 10,000.
+
+```{r}
+logobj <- function(theta){
+  M <- 1e3; 
+  ifelse(1<= theta & theta <= 8, 
+          dnorm(theta, mean = 3, sd = 4, log = TRUE), 
+          M)
+}
+```
+
+```{r}
+x_ <- seq(0, 10, length.out = 1000)
+plot(x_, exp(logobj(x_)), type = "l" )
+```
+
+
+```{r}
+x_ <- seq(0, 10, length.out = 1000)
+plot(x_, exp(logobj(x_)), type = "l" )
+```
+
+
+```{r}
+tau <- 1; xstart <- 3; nsamples <- 1e4;
+
+mcmc <- LearnBayes::rwmetrop(
+  logobj, 
+  list(var = 1, scale = tau), 
+  xstart, 
+  nsamples
+)
+```
+
