@@ -138,3 +138,40 @@ mcmc <- LearnBayes::rwmetrop(
 )
 ```
 
+```{r}
+plot(mcmc$par, type = "l")
+```
+
+```{r}
+c( accept = mcmc$accept)
+```
+
+```{r}
+tibble(
+  rhat = posterior::rhat(mcmc$par), 
+  ess  = posterior::ess_bulk(mcmc$par), 
+  mcse = posterior::mcse_mean(mcmc$par)
+)
+```
+
+```{r}
+plot(mcmc$par[1:1000], type = "l")
+```
+
+```{r}
+c( accept = mcmc$accept)
+```
+
+```{r}
+tibble(
+  rhat = posterior::rhat(mcmc$par[1:600]), 
+  ess  = posterior::ess_bulk(mcmc$par[1:600]), 
+  mcse = posterior::mcse_mean(mcmc$par[1:600])
+)
+```
+
+
+```{r}
+acf(mcmc$par)
+```
+
